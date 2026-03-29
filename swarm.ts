@@ -6,7 +6,7 @@
 const PEER_COUNT = parseInt(process.argv[2] || '10')
 const BOOTSTRAP_HOST = '127.0.0.1'
 const BOOTSTRAP_PORT = '9000'
-const RUN_DURATION = 30_000
+const RUN_DURATION = 15_000
 
 const procs: ReturnType<typeof Bun.spawn>[] = []
 

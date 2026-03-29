@@ -17,8 +17,18 @@ const socket = await Bun.udpSocket({
                     lastSeen: Date.now()
                 }
                 const peerId = toPeerId(peer)
+
+                if (peers.has(peerId)) return
+
+                for (const p of peers.values()) {
+                    // Tell existing peer about new peer
+                    socket.send(encode('DISCOVERY', { address: peer.address, port: peer.port }), p.port, p.address)
+                    // Tell new peer about existing peer
+                    socket.send(encode('DISCOVERY', { address: p.address, port: p.port }), peer.port, peer.address)
+                }
+
                 peers.set(peerId, peer)
-                log(envelope.type, `from ${peer.address}:${peer.port}`)
+                log(envelope.type, `from ${peerId}`)
             } else if (envelope.type === 'HEARTBEAT') {
                 const peerId = toPeerId(address, port)
                 log(envelope.type, `from ${peerId}`)

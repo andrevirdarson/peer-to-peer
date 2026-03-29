@@ -2,6 +2,8 @@ import { log } from "./log"
 import { decode, encode } from "./serializer"
 import { toPeerId, type Peer } from "./types"
 
+const BOOTSTRAP_FANOUT = 3
+
 const peers = new Map<string, Peer>()
 
 const socket = await Bun.udpSocket({
@@ -15,11 +17,14 @@ const socket = await Bun.udpSocket({
                 const peerId = toPeerId(address, port)
                 log(envelope.type, `from ${peerId}`)
     
-                for (const [_, value] of peers.entries().filter(([key]) => key !== peerId)) {
+                const sample = [...peers.values()]
+                    .sort(() => Math.random() - 0.5)
+                    .slice(0, BOOTSTRAP_FANOUT)
+                for (const peer of sample) {
                     // Tell existing peer about new peer
-                    socket.send(encode('DISCOVERY', { address, port }), value.port, value.address)
+                    socket.send(encode('DISCOVERY', { address, port }), peer.port, peer.address)
                     // Tell new peer about existing peer
-                    socket.send(encode('DISCOVERY', { address: value.address, port: value.port }), port, address)
+                    socket.send(encode('DISCOVERY', { address: peer.address, port: peer.port }), port, address)
                 }
     
                 peers.set(peerId, { address, port, lastSeen: Date.now() })
