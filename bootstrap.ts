@@ -17,9 +17,9 @@ const socket = await Bun.udpSocket({
     
                 for (const [_, value] of peers.entries().filter(([key]) => key !== peerId)) {
                     // Tell existing peer about new peer
-                    socket.send(encode('DISCOVERY', Buffer.from(toPeerId(address, port))), value.port, value.address)
+                    socket.send(encode('DISCOVERY', { address, port }), value.port, value.address)
                     // Tell new peer about existing peer
-                    socket.send(encode('DISCOVERY', Buffer.from(toPeerId(value.address, value.port))), port, address)
+                    socket.send(encode('DISCOVERY', { address: value.address, port: value.port }), port, address)
                 }
     
                 peers.set(peerId, { address, port, lastSeen: Date.now() })

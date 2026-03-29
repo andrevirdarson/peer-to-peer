@@ -11,10 +11,12 @@ export const MESSAGE_TYPE = {
 
 export type EnvelopeType = keyof typeof MESSAGE_TYPE;
 
-export type Envelope = {
+export type Envelope<T = undefined> = {
     type: EnvelopeType
-    payload?: Uint8Array;
+    payload: T;
 }
+
+export type DiscoveryEnvelope = Envelope<{ address: string, port: number }>
 
 export function toPeerId(peer: Peer): string
 export function toPeerId(address: string, port: number): string

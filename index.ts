@@ -1,6 +1,6 @@
 import { log } from "./log"
 import { decode, encode } from "./serializer"
-import { toPeerId, type Peer } from "./types"
+import { toPeerId, type DiscoveryEnvelope, type Peer } from "./types"
 
 const peers = new Map<string, Peer>()
 
@@ -10,10 +10,10 @@ const socket = await Bun.udpSocket({
             const envelope = decode(buffer)
 
             if (envelope.type === 'DISCOVERY') {
-                const payload = (envelope.payload as Buffer).toString().split(':')
+                const { payload } = envelope as DiscoveryEnvelope
                 const peer = {
-                    address: payload[0]!,
-                    port: parseInt(payload[1]!),
+                    address: payload.address,
+                    port: payload.port,
                     lastSeen: Date.now()
                 }
                 const peerId = toPeerId(peer)
